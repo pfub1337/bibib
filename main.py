@@ -6,14 +6,10 @@ import requests
 
 pygame.init()
 
-try:
-    coords = input('Введите долготу и ширину через пробел: ').split()
-    coords = [float(x) for x in coords]
-    zoom = 1
-except Exception:
-    print('Неверно введены данные')
+coords = [37.615560, 55.752220]
+zoom = 1
 
-def map_req(zoom):
+def map_req(zoom, coords):
     response = None
     map_request = "http://static-maps.yandex.ru/1.x/?ll={},{}&spn={},{}&l=map".format(coords[0], coords[1], zoom, zoom)
     response = requests.get(map_request)
@@ -28,7 +24,7 @@ def map_req(zoom):
     return map_file
 
 
-m_f = map_req(zoom)
+m_f = map_req(zoom, coords)
 running = True
 while running:
     for event in pygame.event.get():
@@ -38,10 +34,26 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_PAGEUP:
                 zoom *= 1.1
-                m_f = map_req(zoom)
+                m_f = map_req(zoom, coords)
             if event.key == pygame.K_PAGEDOWN:
                 zoom /= 1.1
-                m_f = map_req(zoom)
+                m_f = map_req(zoom, coords)
+            if event.key == pygame.K_RIGHT:
+                coords[0] += 0.1
+                coords[0] = coords[0] % 180
+                m_f = map_req(zoom, coords)
+            if event.key == pygame.K_LEFT:
+                coords[0] -= 0.1
+                coords[0] = coords[0] % 180
+                m_f = map_req(zoom, coords)
+            if event.key == pygame.K_UP:
+                coords[1] += 0.1
+                coords[1] = coords[1] % 180
+                m_f = map_req(zoom, coords)
+            if event.key == pygame.K_DOWN:
+                coords[1] -= 0.1
+                coords[1] = coords[1] % 180
+                m_f = map_req(zoom, coords)
     screen = pygame.display.set_mode((600, 450))
     screen.blit(pygame.image.load(m_f), (0, 0))
     pygame.display.flip()
